@@ -14,13 +14,16 @@ API_KEY = os.getenv("GENAI_API_KEY")
 if not API_KEY:
     raise RuntimeError("GENAI_API_KEY environment variable is required. Set it with: setx GENAI_API_KEY \"AIzaSyDtzKpLXL31QZZxhLLQn3QBWumGO6obUPo\"")
 
-model_name = "gemini-1.5-flash"
+# Use a supported model for the current v1beta generate_content API.
+# If your key does not have access to gemini-2.0-flash, replace with one
+# returned by ListModels (e.g., gemini-1.5 or gemini-1.0 depending on availability).
+model_name = "gemini-2.0-flash"
 use_new_genai = False
 client = None
 model = None
 
 try:
-    from google.genai import Client
+    from google.genai import Client, types
     client = Client(api_key=API_KEY)
     use_new_genai = True
 except ModuleNotFoundError:
@@ -67,19 +70,13 @@ def analyze():
 
     try:
         if use_new_genai:
-            # google.genai expects structured content dicts, not raw text/image combination.
+            # google.genai expects typed Part objects for multimodal input.
             response = client.models.generate_content(
                 model=model_name,
                 contents=[
-                    {"type": "text", "text": prompt},
-                    {
-                        "type": "image",
-                        "image": {
-                            "mime_type": mime_type,
-                            "data": base64_image
-                        }
-                    }
-                ]
+                    types.Part.from_text(text=prompt),
+                    types.Part.from_bytes(data=image_data, mime_type=mime_type),
+                ],
             )
         else:
             # legacy google.generativeai supports this format directly.
