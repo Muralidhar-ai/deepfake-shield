@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 __pycache__/
 *.pyc
 instance/
 .env
+=======
+__pycache__/
+*.pyc
+instance/
+.env
+>>>>>>> e994902c14cd90ec2712c5177a3fdbd49e31f7b0
