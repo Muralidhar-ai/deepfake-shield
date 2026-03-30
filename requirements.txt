@@ -3,3 +3,4 @@ requests
 Pillow
 opencv-python
 numpy
+gunicorn
