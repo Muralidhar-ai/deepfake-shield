@@ -5,72 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeepFake Shield</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <div class="header">
-            <h1>🛡️ DeepFake Shield</h1>
-            <p>Upload any image and find out if it is Real or Fake in seconds</p>
-        </div>
+    <div class="header">
+        <div class="shield-icon">🛡️</div>
+        <h1>DeepFake Shield</h1>
+        <p>Detect AI-generated images, videos, audio and text instantly</p>
+    </div>
 
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('image')">🖼️ Image</button>
+        <button class="tab" onclick="switchTab('video')">🎬 Video</button>
+        <button class="tab" onclick="switchTab('audio')">🎙️ Audio</button>
+        <button class="tab" onclick="switchTab('text')">📝 Text</button>
+    </div>
+
+    <!-- IMAGE TAB -->
+    <div class="tab-content active" id="tab-image">
         <div class="upload-box" id="uploadBox">
             <input type="file" id="imageInput" accept="image/*">
             <div class="upload-content">
                 <div class="upload-icon">📁</div>
-                <p>Click to upload or drag and drop an image</p>
+                <p>Click to upload or drag and drop</p>
                 <span>Supports JPG, PNG, WEBP</span>
             </div>
         </div>
-
         <div class="preview-box" id="previewBox" style="display:none;">
             <img id="previewImage" src="" alt="Uploaded Image">
         </div>
-
         <button class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()" style="display:none;">
             🔍 Analyze Image
         </button>
-
-        <div class="loading" id="loading" style="display:none;">
+        <div class="loading" id="imageLoading" style="display:none;">
             <div class="spinner"></div>
-            <p>Gemini AI is analyzing the image...</p>
+            <p>Analyzing image for deepfake signals...</p>
         </div>
-
-        <div class="result-box" id="resultBox" style="display:none;">
-
-            <div class="verdict" id="verdictBox">
-                <h2 id="verdictText"></h2>
-            </div>
-
-            <div class="details">
-                <div class="detail-card">
-                    <span>Confidence</span>
-                    <strong id="confidenceText"></strong>
-                </div>
-                <div class="detail-card">
-                    <span>Risk Level</span>
-                    <strong id="riskText"></strong>
-                </div>
-            </div>
-
-            <div class="signals-box">
-                <h3>Detected Signals</h3>
-                <p id="signalsText"></p>
-            </div>
-
-            <div class="explanation-box">
-                <h3>Explanation</h3>
-                <p id="explanationText"></p>
-            </div>
-
-            <button class="reset-btn" onclick="resetApp()">🔄 Analyze Another Image</button>
-
-        </div>
-
+        <div id="imageResult"></div>
     </div>
 
-    <script src="/static/script.js"></script>
+    <!-- VIDEO TAB -->
+    <div class="tab-content" id="tab-video">
+        <div class="upload-box" id="videoUploadBox">
+            <input type="file" id="videoInput" accept="video/*">
+            <div class="upload-content">
+                <div class="upload-icon">🎬</div>
+                <p>Click to upload a video</p>
+                <span>Supports MP4, AVI, MOV (max ~50MB)</span>
+            </div>
+        </div>
+        <div id="videoPreviewBox" style="display:none; margin-top:16px; text-align:center;">
+            <video id="videoPreview" controls style="max-width:100%; border-radius:12px; border:2px solid #333355;"></video>
+        </div>
+        <button class="analyze-btn" id="videoAnalyzeBtn" onclick="analyzeVideo()" style="display:none;">
+            🔍 Analyze Video
+        </button>
+        <div class="loading" id="videoLoading" style="display:none;">
+            <div class="spinner"></div>
+            <p>Extracting & analyzing frames... this may take a minute</p>
+        </div>
+        <div id="videoResult"></div>
+    </div>
 
+    <!-- AUDIO TAB -->
+    <div class="tab-content" id="tab-audio">
+        <div class="upload-box" id="audioUploadBox">
+            <input type="file" id="audioInput" accept="audio/*,video/*">
+            <div class="upload-content">
+                <div class="upload-icon">🎙️</div>
+                <p>Click to upload audio or video</p>
+                <span>Supports MP3, WAV, MP4, M4A</span>
+            </div>
+        </div>
+        <div id="audioPreviewBox" style="display:none; margin-top:16px; text-align:center;">
+            <audio id="audioPreview" controls style="width:100%; margin-top:8px;"></audio>
+        </div>
+        <button class="analyze-btn" id="audioAnalyzeBtn" onclick="analyzeAudio()" style="display:none;">
+            🔍 Analyze Audio
+        </button>
+        <div class="loading" id="audioLoading" style="display:none;">
+            <div class="spinner"></div>
+            <p>Transcribing and analyzing voice...</p>
+        </div>
+        <div id="audioResult"></div>
+    </div>
+
+    <!-- TEXT TAB -->
+    <div class="tab-content" id="tab-text">
+        <div class="text-input-box">
+            <textarea id="textInput" placeholder="Paste any text here to detect if it was written by AI (ChatGPT, Claude, Gemini, etc.)..."></textarea>
+            <div class="text-meta">
+                <span id="charCount">0 characters</span>
+                <span>Minimum 50 characters</span>
+            </div>
+        </div>
+        <button class="analyze-btn" onclick="analyzeText()">
+            🔍 Analyze Text
+        </button>
+        <div class="loading" id="textLoading" style="display:none;">
+            <div class="spinner"></div>
+            <p>Detecting AI writing patterns...</p>
+        </div>
+        <div id="textResult"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333344; color: #888; font-size: 0.9em;">
+        Powered by <strong>Team AI Aura</strong><br>
+        <span style="font-size: 0.8em; color: #666;">Developers: Muralidhar, Pevin, Niranjan, Sharvin</span>
+    </div>
+
+</div>
+
+<script src="/static/script.js"></script>
 </body>
 </html>

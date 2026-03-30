@@ -17,27 +17,77 @@ body {
 
 .container {
     width: 100%;
-    max-width: 700px;
+    max-width: 750px;
 }
 
+/* HEADER */
 .header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 36px;
 }
 
-.header h1 {
-    font-size: 42px;
-    font-weight: 700;
-    color: #ffffff;
+.shield-icon {
+    font-size: 52px;
     margin-bottom: 10px;
 }
 
+.header h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
 .header p {
-    font-size: 16px;
+    font-size: 15px;
     color: #aaaaaa;
 }
 
+/* TABS */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    background: #1a1a2e;
+    border-radius: 14px;
+    padding: 6px;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px 8px;
+    background: transparent;
+    color: #888888;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.tab:hover {
+    color: #cccccc;
+    background: #252540;
+}
+
+.tab.active {
+    background: #6c63ff;
+    color: #ffffff;
+}
+
+/* TAB CONTENT */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* UPLOAD BOX */
 .upload-box {
+    position: relative;
     border: 2px dashed #444466;
     border-radius: 16px;
     padding: 60px 20px;
@@ -49,6 +99,16 @@ body {
 
 .upload-box:hover {
     border-color: #6c63ff;
+}
+
+.upload-box input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
 }
 
 .upload-icon {
@@ -67,6 +127,7 @@ body {
     color: #777777;
 }
 
+/* PREVIEW */
 .preview-box {
     margin-top: 24px;
     text-align: center;
@@ -81,13 +142,14 @@ body {
     border: 2px solid #333355;
 }
 
+/* ANALYZE BUTTON */
 .analyze-btn {
     width: 100%;
-    margin-top: 24px;
+    margin-top: 20px;
     padding: 16px;
     background: #6c63ff;
     color: #ffffff;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     border: none;
     border-radius: 12px;
@@ -99,6 +161,7 @@ body {
     background: #554ecc;
 }
 
+/* LOADING */
 .loading {
     text-align: center;
     margin-top: 40px;
@@ -123,29 +186,30 @@ body {
     font-size: 15px;
 }
 
+/* RESULT CARD */
 .result-box {
-    margin-top: 32px;
+    margin-top: 28px;
 }
 
 .verdict {
     text-align: center;
-    padding: 30px;
+    padding: 28px;
     border-radius: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .verdict h2 {
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 700;
 }
 
-.verdict.real {
+.verdict.real, .verdict.human-voice, .verdict.human-written {
     background: #0d2b1a;
     border: 2px solid #22c55e;
     color: #22c55e;
 }
 
-.verdict.fake {
+.verdict.fake, .verdict.ai-generated {
     background: #2b0d0d;
     border: 2px solid #ef4444;
     color: #ef4444;
@@ -157,26 +221,29 @@ body {
     color: #f59e0b;
 }
 
+/* DETAILS GRID */
 .details {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 14px;
+    margin-bottom: 16px;
 }
 
 .detail-card {
     background: #1a1a2e;
     border: 1px solid #333355;
     border-radius: 12px;
-    padding: 20px;
+    padding: 18px;
     text-align: center;
 }
 
 .detail-card span {
     display: block;
-    font-size: 13px;
+    font-size: 12px;
     color: #888888;
     margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .detail-card strong {
@@ -184,84 +251,209 @@ body {
     color: #ffffff;
 }
 
-.signals-box {
+/* INFO BOXES */
+.signals-box,
+.explanation-box,
+.transcription-box {
+    background: #1a1a2e;
+    border: 1px solid #333355;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
+}
+
+.signals-box h3,
+.explanation-box h3,
+.transcription-box h3 {
+    font-size: 12px;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.signals-box p,
+.explanation-box p,
+.transcription-box p {
+    font-size: 15px;
+    color: #cccccc;
+    line-height: 1.6;
+}
+
+/* CHART */
+.chart-box {
     background: #1a1a2e;
     border: 1px solid #333355;
     border-radius: 12px;
     padding: 20px;
+    margin-bottom: 14px;
+}
+
+.chart-box h3 {
+    font-size: 12px;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     margin-bottom: 16px;
 }
 
-.signals-box h3 {
-    font-size: 15px;
-    color: #888888;
-    margin-bottom: 10px;
+.chart-box canvas {
+    max-height: 220px;
 }
 
-.signals-box p {
-    font-size: 15px;
-    color: #cccccc;
-    line-height: 1.6;
-}
-
-.explanation-box {
+/* VIDEO FRAME TIMELINE */
+.frame-timeline {
     background: #1a1a2e;
     border: 1px solid #333355;
     border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
+    padding: 18px;
+    margin-bottom: 14px;
 }
 
-.explanation-box h3 {
-    font-size: 15px;
+.frame-timeline h3 {
+    font-size: 12px;
     color: #888888;
-    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
 }
 
-.explanation-box p {
+.frame-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #252540;
+}
+
+.frame-item:last-child {
+    border-bottom: none;
+}
+
+.frame-time {
+    font-size: 12px;
+    color: #888888;
+    min-width: 50px;
+}
+
+.frame-verdict {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 55px;
+}
+
+.frame-verdict.fake { color: #ef4444; }
+.frame-verdict.real { color: #22c55e; }
+
+.frame-bar-wrap {
+    flex: 1;
+    background: #252540;
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.frame-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s;
+}
+
+.frame-bar.fake { background: #ef4444; }
+.frame-bar.real { background: #22c55e; }
+
+.frame-conf {
+    font-size: 12px;
+    color: #aaaaaa;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* TEXT INPUT */
+.text-input-box {
+    background: #1a1a2e;
+    border: 2px solid #333355;
+    border-radius: 16px;
+    padding: 4px;
+    transition: border-color 0.3s;
+}
+
+.text-input-box:focus-within {
+    border-color: #6c63ff;
+}
+
+.text-input-box textarea {
+    width: 100%;
+    min-height: 180px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
     font-size: 15px;
-    color: #cccccc;
+    font-family: 'Segoe UI', sans-serif;
+    padding: 16px;
+    resize: vertical;
     line-height: 1.6;
 }
 
+.text-input-box textarea::placeholder {
+    color: #555577;
+}
+
+.text-meta {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px 12px;
+    font-size: 12px;
+    color: #666688;
+}
+
+/* RESET BUTTON */
 .reset-btn {
     width: 100%;
     padding: 14px;
     background: transparent;
     color: #6c63ff;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     border: 2px solid #6c63ff;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s;
+    margin-top: 4px;
 }
 
 .reset-btn:hover {
     background: #6c63ff;
     color: #ffffff;
 }
-#imageInput {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    cursor: pointer;
+
+/* VIDEO STATS ROW */
+.video-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
 }
 
-.upload-box {
-    position: relative;
+.stat-card {
+    background: #1a1a2e;
+    border: 1px solid #333355;
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
 }
-```
 
----
+.stat-card span {
+    display: block;
+    font-size: 11px;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+}
 
-## Then
-
-1. Press **Ctrl + S** on both files
-2. In terminal press **Ctrl + C** to stop
-3. Run again:
-```
-python app.py
+.stat-card strong {
+    font-size: 18px;
+    color: #ffffff;
+}
