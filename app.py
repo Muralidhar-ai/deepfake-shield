@@ -9,6 +9,17 @@ import urllib.parse
 from bs4 import BeautifulSoup
 import database
 
+# Try to load local .env file if it exists
+if os.path.exists(".env"):
+    with open(".env") as f:
+        for line in f:
+            if line.strip() and not line.startswith("#"):
+                try:
+                    key, val = line.strip().split("=", 1)
+                    os.environ[key.strip()] = val.strip().strip('"').strip("'")
+                except ValueError:
+                    pass
+
 # Initialize database table
 database.init_db()
 
