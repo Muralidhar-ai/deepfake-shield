@@ -181,6 +181,7 @@ function analyzeImage() {
             if (canvas) renderConfidenceChart(canvas.id, data.confidence, data.verdict);
             // add reset
             document.getElementById("imageResult").innerHTML += `<button class="reset-btn" onclick="resetImage()">🔄 Analyze Another Image</button>`;
+            loadHistory();
         })
         .catch(err => {
             document.getElementById("imageLoading").style.display = "none";
@@ -196,6 +197,8 @@ function resetImage() {
     analyzeBtn.style.display = "none";
     document.getElementById("imageResult").innerHTML = "";
     uploadBox.style.display = "block";
+    document.getElementById("imageUrlContainer").style.display = "block";
+    document.getElementById("imageUrlInput").value = "";
 }
 
 // ─────────────────────────────────────────
@@ -328,6 +331,7 @@ function analyzeVideo() {
                     }
                 });
             }
+            loadHistory();
         })
         .catch(err => {
             document.getElementById("videoLoading").style.display = "none";
@@ -343,6 +347,8 @@ function resetVideo() {
     videoAnalyzeBtn.style.display = "none";
     document.getElementById("videoResult").innerHTML = "";
     videoUploadBox.style.display = "block";
+    document.getElementById("videoUrlContainer").style.display = "block";
+    document.getElementById("videoUrlInput").value = "";
 }
 
 // ─────────────────────────────────────────
@@ -500,6 +506,7 @@ function analyzeText() {
                 </div>
             `;
             renderConfidenceChart(chartCanvasId, data.confidence, data.verdict);
+            loadHistory();
         })
         .catch(err => {
             document.getElementById("textLoading").style.display = "none";
@@ -511,4 +518,359 @@ function resetText() {
     textInput.value = "";
     charCount.textContent = "0 characters";
     document.getElementById("textResult").innerHTML = "";
+    document.getElementById("textUrlContainer").style.display = "block";
+    document.getElementById("textUrlInput").value = "";
 }
+
+// ─────────────────────────────────────────
+// URL ANALYSIS TRIGGERS & HISTORY LOG
+// ─────────────────────────────────────────
+
+function analyzeImageUrl() {
+    const input = document.getElementById("imageUrlInput");
+    const url = input.value.trim();
+    if (!url) return alert("Please enter a valid image URL.");
+
+    document.getElementById("imageUrlContainer").style.display = "none";
+    uploadBox.style.display = "none";
+    document.getElementById("imageLoading").style.display = "block";
+    document.getElementById("imageResult").innerHTML = "";
+
+    fetch("/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url })
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById("imageLoading").style.display = "none";
+        if (data.error) {
+            document.getElementById("imageResult").innerHTML = `<div class="explanation-box"><p style="color:#ef4444">Error: ${data.error}</p></div>`;
+            document.getElementById("imageUrlContainer").style.display = "block";
+            uploadBox.style.display = "block";
+            return;
+        }
+        document.getElementById("imageResult").innerHTML = buildBaseResult(data);
+        const canvas = document.getElementById("imageResult").querySelector("canvas");
+        if (canvas) renderConfidenceChart(canvas.id, data.confidence, data.verdict);
+        document.getElementById("imageResult").innerHTML += `<button class="reset-btn" onclick="resetImage()">🔄 Analyze Another Image</button>`;
+        loadHistory();
+    })
+    .catch(err => {
+        document.getElementById("imageLoading").style.display = "none";
+        document.getElementById("imageUrlContainer").style.display = "block";
+        uploadBox.style.display = "block";
+        alert("Error: " + err.message);
+    });
+}
+
+function analyzeVideoUrl() {
+    const input = document.getElementById("videoUrlInput");
+    const url = input.value.trim();
+    if (!url) return alert("Please enter a valid video URL.");
+
+    document.getElementById("videoUrlContainer").style.display = "none";
+    videoUploadBox.style.display = "none";
+    document.getElementById("videoLoading").style.display = "block";
+    document.getElementById("videoResult").innerHTML = "";
+
+    fetch("/analyze-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url })
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById("videoLoading").style.display = "none";
+        if (data.error) {
+            document.getElementById("videoResult").innerHTML = `<div class="explanation-box"><p style="color:#ef4444">Error: ${data.error}</p></div>`;
+            document.getElementById("videoUrlContainer").style.display = "block";
+            videoUploadBox.style.display = "block";
+            return;
+        }
+
+        const cls = getVerdictClass(data.verdict);
+        const emoji = cls === "fake" ? "🔴" : "🟢";
+
+        let framesHTML = "";
+        if (data.frame_results && data.frame_results.length > 0) {
+            framesHTML = data.frame_results.map(f => {
+                const fc = getVerdictClass(f.verdict);
+                const conf = parseFloat(f.confidence) || 0;
+                return `
+                    <div class="frame-item">
+                        <span class="frame-time">${f.timestamp}s</span>
+                        <span class="frame-verdict ${fc}">${f.verdict}</span>
+                        <div class="frame-bar-wrap">
+                            <div class="frame-bar ${fc}" style="width:${conf}%"></div>
+                        </div>
+                        <span class="frame-conf">${Math.round(conf)}%</span>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        const labels = (data.frame_results || []).map(f => `${f.timestamp}s`);
+        const confs = (data.frame_results || []).map(f => parseFloat(f.confidence) || 0);
+        const colors = (data.frame_results || []).map(f => getVerdictClass(f.verdict) === "fake" ? "#ef4444" : "#22c55e");
+
+        const chartCanvasId = `videoChart_${Date.now()}`;
+
+        document.getElementById("videoResult").innerHTML = `
+            <div class="result-box">
+                <div class="verdict ${cls}">
+                    <h2>${emoji} ${data.verdict}</h2>
+                </div>
+                <div class="video-stats">
+                    <div class="stat-card"><span>Confidence</span><strong>${data.confidence}%</strong></div>
+                    <div class="stat-card"><span>Risk</span><strong>${data.risk}</strong></div>
+                    <div class="stat-card"><span>Fake Frames</span><strong style="color:#ef4444">${data.fake_frames}</strong></div>
+                    <div class="stat-card"><span>Real Frames</span><strong style="color:#22c55e">${data.real_frames}</strong></div>
+                </div>
+                <div class="chart-box">
+                    <h3>Frame-by-Frame Confidence Timeline</h3>
+                    <canvas id="${chartCanvasId}"></canvas>
+                </div>
+                <div class="frame-timeline">
+                    <h3>Frame Analysis (${data.total_frames_analyzed} frames sampled)</h3>
+                    ${framesHTML}
+                </div>
+                <div class="explanation-box">
+                    <h3>Summary</h3>
+                    <p>${data.explanation}</p>
+                </div>
+                <button class="reset-btn" onclick="resetVideo()">🔄 Analyze Another Video</button>
+            </div>
+        `;
+
+        const canvas = document.getElementById(chartCanvasId);
+        if (canvas && labels.length > 0) {
+            new Chart(canvas, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Confidence %",
+                        data: confs,
+                        backgroundColor: colors,
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { min: 0, max: 100, ticks: { color: "#888888" }, grid: { color: "#252540" } },
+                        x: { ticks: { color: "#888888" }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+        loadHistory();
+    })
+    .catch(err => {
+        document.getElementById("videoLoading").style.display = "none";
+        document.getElementById("videoUrlContainer").style.display = "block";
+        videoUploadBox.style.display = "block";
+        alert("Error: " + err.message);
+    });
+}
+
+function analyzeAudioUrl() {
+    const input = document.getElementById("audioUrlInput");
+    const url = input.value.trim();
+    if (!url) return alert("Please enter a valid audio URL.");
+
+    document.getElementById("audioUrlContainer").style.display = "none";
+    audioUploadBox.style.display = "none";
+    document.getElementById("audioLoading").style.display = "block";
+    document.getElementById("audioResult").innerHTML = "";
+
+    fetch("/analyze-audio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url })
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById("audioLoading").style.display = "none";
+        if (data.error) {
+            document.getElementById("audioResult").innerHTML = `<div class="explanation-box"><p style="color:#ef4444">Error: ${data.error}</p></div>`;
+            document.getElementById("audioUrlContainer").style.display = "block";
+            audioUploadBox.style.display = "block";
+            return;
+        }
+
+        const cls = getVerdictClass(data.verdict);
+        const emoji = cls === "fake" ? "🔴" : "🟢";
+        const chartCanvasId = `audioChart_${Date.now()}`;
+
+        document.getElementById("audioResult").innerHTML = `
+            <div class="result-box">
+                <div class="verdict ${cls}">
+                    <h2>${emoji} ${data.verdict}</h2>
+                </div>
+                <div class="details">
+                    <div class="detail-card"><span>Confidence</span><strong>${data.confidence}%</strong></div>
+                    <div class="detail-card"><span>Risk Level</span><strong>${data.risk}</strong></div>
+                </div>
+                <div class="chart-box">
+                    <h3>Confidence Score</h3>
+                    <canvas id="${chartCanvasId}"></canvas>
+                </div>
+                <div class="transcription-box">
+                    <h3>Transcription</h3>
+                    <p>${data.transcription || "No transcription available"}</p>
+                </div>
+                <div class="signals-box">
+                    <h3>Detected Signals</h3>
+                    <p>${data.signals || "None"}</p>
+                </div>
+                <div class="explanation-box">
+                    <h3>Explanation</h3>
+                    <p>${data.explanation || ""}</p>
+                </div>
+                <button class="reset-btn" onclick="resetAudio()">🔄 Analyze Another Audio</button>
+            </div>
+        `;
+        renderConfidenceChart(chartCanvasId, data.confidence, data.verdict);
+        loadHistory();
+    })
+    .catch(err => {
+        document.getElementById("audioLoading").style.display = "none";
+        document.getElementById("audioUrlContainer").style.display = "block";
+        audioUploadBox.style.display = "block";
+        alert("Error: " + err.message);
+    });
+}
+
+function analyzeTextUrl() {
+    const input = document.getElementById("textUrlInput");
+    const url = input.value.trim();
+    if (!url) return alert("Please enter a valid webpage URL.");
+
+    document.getElementById("textLoading").style.display = "block";
+    document.getElementById("textResult").innerHTML = "";
+    document.getElementById("textUrlContainer").style.display = "none";
+
+    fetch("/analyze-text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url })
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById("textLoading").style.display = "none";
+        document.getElementById("textUrlContainer").style.display = "block";
+        if (data.error) {
+            document.getElementById("textResult").innerHTML = `<div class="explanation-box"><p style="color:#ef4444">Error: ${data.error}</p></div>`;
+            return;
+        }
+
+        const cls = getVerdictClass(data.verdict);
+        const emoji = cls === "fake" ? "🔴" : "🟢";
+        const chartCanvasId = `textChart_${Date.now()}`;
+
+        document.getElementById("textResult").innerHTML = `
+            <div class="result-box" style="margin-top:20px;">
+                <div class="verdict ${cls}">
+                    <h2>${emoji} ${data.verdict}</h2>
+                </div>
+                <div class="details">
+                    <div class="detail-card"><span>Confidence</span><strong>${data.confidence}%</strong></div>
+                    <div class="detail-card"><span>Risk Level</span><strong>${data.risk}</strong></div>
+                </div>
+                <div class="chart-box">
+                    <h3>Confidence Score</h3>
+                    <canvas id="${chartCanvasId}"></canvas>
+                </div>
+                ${data.scraped_text ? `
+                <div class="transcription-box" style="max-height: 200px; overflow-y: auto;">
+                    <h3>Scraped Webpage Content</h3>
+                    <p style="font-size:13px; color:#aaa;">${data.scraped_text}</p>
+                </div>` : ''}
+                <div class="signals-box">
+                    <h3>Detected Patterns</h3>
+                    <p>${data.signals || "None"}</p>
+                </div>
+                <div class="explanation-box">
+                    <h3>Explanation</h3>
+                    <p>${data.explanation || ""}</p>
+                </div>
+                <button class="reset-btn" onclick="resetText()">🔄 Analyze Another Text</button>
+            </div>
+        `;
+        renderConfidenceChart(chartCanvasId, data.confidence, data.verdict);
+        loadHistory();
+    })
+    .catch(err => {
+        document.getElementById("textLoading").style.display = "none";
+        document.getElementById("textUrlContainer").style.display = "block";
+        alert("Error: " + err.message);
+    });
+}
+
+function loadHistory() {
+    fetch("/api/history")
+    .then(r => r.json())
+    .then(data => {
+        const list = document.getElementById("historyList");
+        if (!list) return;
+
+        if (!data || data.length === 0) {
+            list.innerHTML = `<p class="no-history">No history records found.</p>`;
+            return;
+        }
+
+        list.innerHTML = data.map(item => {
+            const badgeClass = item.type; // image, video, audio, text
+            const verdictClass = getVerdictClass(item.verdict);
+
+            // Format timestamp
+            let dateStr = "";
+            try {
+                const date = new Date(item.timestamp + " UTC");
+                dateStr = date.toLocaleString();
+            } catch (e) {
+                dateStr = item.timestamp;
+            }
+
+            return `
+                <div class="history-card">
+                    <div class="history-card-left">
+                        <div class="history-title-row">
+                            <span class="history-type-badge ${badgeClass}">${item.type}</span>
+                            <span class="history-source" title="${item.input_source}">${item.input_source}</span>
+                        </div>
+                        <div class="history-explanation">${item.explanation || "No explanation provided."}</div>
+                        <div class="history-timestamp">${dateStr}</div>
+                    </div>
+                    <div class="history-card-right">
+                        <div class="history-verdict-badge ${verdictClass}">${item.verdict}</div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    })
+    .catch(err => console.error("Failed to load history:", err));
+}
+
+function clearHistory() {
+    if (!confirm("Are you sure you want to clear the entire analysis log?")) return;
+
+    fetch("/api/history/clear", { method: "POST" })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === "success") {
+            loadHistory();
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(err => alert("Clear history failed: " + err.message));
+}
+
+// Initial history load
+document.addEventListener("DOMContentLoaded", () => {
+    loadHistory();
+});

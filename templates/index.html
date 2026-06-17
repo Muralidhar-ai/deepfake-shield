@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeepFake Shield</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -35,6 +36,13 @@
                 <span>Supports JPG, PNG, WEBP</span>
             </div>
         </div>
+        <div class="url-input-container" id="imageUrlContainer">
+            <div class="url-divider"><span>OR</span></div>
+            <div class="url-input-wrapper">
+                <input type="text" id="imageUrlInput" placeholder="Paste image URL here...">
+                <button class="url-btn" onclick="analyzeImageUrl()">Analyze URL</button>
+            </div>
+        </div>
         <div class="preview-box" id="previewBox" style="display:none;">
             <img id="previewImage" src="" alt="Uploaded Image">
         </div>
@@ -58,6 +66,13 @@
                 <span>Supports MP4, AVI, MOV (max ~50MB)</span>
             </div>
         </div>
+        <div class="url-input-container" id="videoUrlContainer">
+            <div class="url-divider"><span>OR</span></div>
+            <div class="url-input-wrapper">
+                <input type="text" id="videoUrlInput" placeholder="Paste video URL here...">
+                <button class="url-btn" onclick="analyzeVideoUrl()">Analyze URL</button>
+            </div>
+        </div>
         <div id="videoPreviewBox" style="display:none; margin-top:16px; text-align:center;">
             <video id="videoPreview" controls style="max-width:100%; border-radius:12px; border:2px solid #333355;"></video>
         </div>
@@ -79,6 +94,13 @@
                 <div class="upload-icon">🎙️</div>
                 <p>Click to upload audio or video</p>
                 <span>Supports MP3, WAV, MP4, M4A</span>
+            </div>
+        </div>
+        <div class="url-input-container" id="audioUrlContainer">
+            <div class="url-divider"><span>OR</span></div>
+            <div class="url-input-wrapper">
+                <input type="text" id="audioUrlInput" placeholder="Paste audio URL here...">
+                <button class="url-btn" onclick="analyzeAudioUrl()">Analyze URL</button>
             </div>
         </div>
         <div id="audioPreviewBox" style="display:none; margin-top:16px; text-align:center;">
@@ -106,6 +128,13 @@
         <button class="analyze-btn" onclick="analyzeText()">
             🔍 Analyze Text
         </button>
+        <div class="url-input-container" id="textUrlContainer">
+            <div class="url-divider"><span>OR EXTRACT FROM WEBPAGE</span></div>
+            <div class="url-input-wrapper">
+                <input type="text" id="textUrlInput" placeholder="Paste article/webpage URL here...">
+                <button class="url-btn" onclick="analyzeTextUrl()">Analyze URL</button>
+            </div>
+        </div>
         <div class="loading" id="textLoading" style="display:none;">
             <div class="spinner"></div>
             <p>Detecting AI writing patterns...</p>
@@ -113,11 +142,18 @@
         <div id="textResult"></div>
     </div>
 
-    <!-- FOOTER -->
-    <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #333344; color: #888; font-size: 0.9em;">
-        Powered by <strong>Team AI Aura</strong><br>
-        <span style="font-size: 0.8em; color: #666;">Developers: Muralidhar, Pevin, Niranjan, Sharvin</span>
+    <!-- HISTORY SECTION -->
+    <div class="history-section">
+        <div class="history-header">
+            <h2>🛡️ Scan History Log</h2>
+            <button class="clear-history-btn" onclick="clearHistory()">Clear All</button>
+        </div>
+        <div class="history-list" id="historyList">
+            <p class="no-history">No history records found.</p>
+        </div>
     </div>
+
+
 
 </div>
 

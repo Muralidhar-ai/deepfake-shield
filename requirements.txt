@@ -3,4 +3,5 @@ requests
 Pillow
 opencv-python
 numpy
+beautifulsoup4
 gunicorn
