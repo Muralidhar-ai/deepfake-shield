@@ -2,9 +2,9 @@
 // TAB SWITCHING
 // ─────────────────────────────────────────
 function switchTab(tab) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-    document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add("active");
+    document.querySelectorAll(".tab-pill").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(t => t.classList.remove("active"));
+    document.querySelector(`.tab-pill[onclick="switchTab('${tab}')"]`).classList.add("active");
     document.getElementById(`tab-${tab}`).classList.add("active");
 }
 
@@ -817,8 +817,26 @@ function loadHistory() {
         const list = document.getElementById("historyList");
         if (!list) return;
 
+        // Calculate and render sidebar metrics
+        const totalScans = data ? data.length : 0;
+        const fakeScans = data ? data.filter(item => (item.verdict || "").toUpperCase().includes("FAKE")).length : 0;
+        const ratio = totalScans > 0 ? Math.round((fakeScans / totalScans) * 100) : 0;
+
+        const statTotal = document.getElementById("statTotalScans");
+        const statRatio = document.getElementById("statThreatRatio");
+        if (statTotal) statTotal.textContent = totalScans;
+        if (statRatio) statRatio.textContent = ratio + "%";
+
+        const ratioBar = document.getElementById("threatRatioBar");
+        if (ratioBar) ratioBar.style.width = ratio + "%";
+
         if (!data || data.length === 0) {
-            list.innerHTML = `<p class="no-history">No history records found.</p>`;
+            list.innerHTML = `
+                <div class="no-history-msg">
+                    <span class="msg-icon">📂</span>
+                    <p>No scans recorded in history.</p>
+                </div>
+            `;
             return;
         }
 

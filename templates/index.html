@@ -3,158 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepFake Shield</title>
+    <title>DeepFake Shield // Threat Detection Portal</title>
     <link rel="stylesheet" href="/static/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<div class="container">
+<!-- Mesh Gradient Background Overlays -->
+<div class="mesh-bg"></div>
+<div class="ambient-glow blob-violet"></div>
+<div class="ambient-glow blob-cyan"></div>
 
-    <div class="header">
-        <div class="shield-icon">🛡️</div>
-        <h1>DeepFake Shield</h1>
-        <p>Detect AI-generated images, videos, audio and text instantly</p>
-    </div>
-
-    <!-- TABS -->
-    <div class="tabs">
-        <button class="tab active" onclick="switchTab('image')">🖼️ Image</button>
-        <button class="tab" onclick="switchTab('video')">🎬 Video</button>
-        <button class="tab" onclick="switchTab('audio')">🎙️ Audio</button>
-        <button class="tab" onclick="switchTab('text')">📝 Text</button>
-    </div>
-
-    <!-- IMAGE TAB -->
-    <div class="tab-content active" id="tab-image">
-        <div class="upload-box" id="uploadBox">
-            <input type="file" id="imageInput" accept="image/*">
-            <div class="upload-content">
-                <div class="upload-icon">📁</div>
-                <p>Click to upload or drag and drop</p>
-                <span>Supports JPG, PNG, WEBP</span>
+<div class="app-container">
+    <!-- FLOATING GLASS NAVBAR -->
+    <header class="glass-header">
+        <div class="header-left">
+            <div class="shield-logo">
+                <span class="logo-shield">🛡️</span>
+                <span class="logo-pulse"></span>
+            </div>
+            <div class="logo-text">
+                <h1>DEEPFAKE SHIELD</h1>
+                <p>Enterprise AI synthesis verification</p>
             </div>
         </div>
-        <div class="url-input-container" id="imageUrlContainer">
-            <div class="url-divider"><span>OR</span></div>
-            <div class="url-input-wrapper">
-                <input type="text" id="imageUrlInput" placeholder="Paste image URL here...">
-                <button class="url-btn" onclick="analyzeImageUrl()">Analyze URL</button>
+        <div class="header-right">
+            <div class="system-status">
+                <span class="status-dot green"></span>
+                <span class="status-label">SYS_ACTIVE_1.0.4</span>
             </div>
         </div>
-        <div class="preview-box" id="previewBox" style="display:none;">
-            <img id="previewImage" src="" alt="Uploaded Image">
-        </div>
-        <button class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()" style="display:none;">
-            🔍 Analyze Image
-        </button>
-        <div class="loading" id="imageLoading" style="display:none;">
-            <div class="spinner"></div>
-            <p>Analyzing image for deepfake signals...</p>
-        </div>
-        <div id="imageResult"></div>
-    </div>
+    </header>
 
-    <!-- VIDEO TAB -->
-    <div class="tab-content" id="tab-video">
-        <div class="upload-box" id="videoUploadBox">
-            <input type="file" id="videoInput" accept="video/*">
-            <div class="upload-content">
-                <div class="upload-icon">🎬</div>
-                <p>Click to upload a video</p>
-                <span>Supports MP4, AVI, MOV (max ~50MB)</span>
+    <!-- BENTO GRID WORKSPACE -->
+    <main class="bento-grid">
+        
+        <!-- CARD 1: PRIMARY WORKSPACE (Occupies 2 columns on desktop) -->
+        <section class="bento-card workspace-card">
+            <div class="card-header">
+                <div class="card-title-area">
+                    <span class="card-subtitle">DETECTION CORE</span>
+                    <h2>Media Inspection Hub</h2>
+                </div>
+                <p class="workspace-desc">Rigorously scan images, video assets, audio streams, and written articles for generative AI fingerprints.</p>
             </div>
-        </div>
-        <div class="url-input-container" id="videoUrlContainer">
-            <div class="url-divider"><span>OR</span></div>
-            <div class="url-input-wrapper">
-                <input type="text" id="videoUrlInput" placeholder="Paste video URL here...">
-                <button class="url-btn" onclick="analyzeVideoUrl()">Analyze URL</button>
+
+            <!-- Capsule Switcher Tabs -->
+            <div class="capsule-tabs">
+                <button class="tab-pill active" onclick="switchTab('image')">
+                    <span class="pill-icon">🖼️</span> Image
+                </button>
+                <button class="tab-pill" onclick="switchTab('video')">
+                    <span class="pill-icon">🎬</span> Video
+                </button>
+                <button class="tab-pill" onclick="switchTab('audio')">
+                    <span class="pill-icon">🎙️</span> Audio
+                </button>
+                <button class="tab-pill" onclick="switchTab('text')">
+                    <span class="pill-icon">📝</span> Text
+                </button>
             </div>
-        </div>
-        <div id="videoPreviewBox" style="display:none; margin-top:16px; text-align:center;">
-            <video id="videoPreview" controls style="max-width:100%; border-radius:12px; border:2px solid #333355;"></video>
-        </div>
-        <button class="analyze-btn" id="videoAnalyzeBtn" onclick="analyzeVideo()" style="display:none;">
-            🔍 Analyze Video
-        </button>
-        <div class="loading" id="videoLoading" style="display:none;">
-            <div class="spinner"></div>
-            <p>Extracting & analyzing frames... this may take a minute</p>
-        </div>
-        <div id="videoResult"></div>
-    </div>
 
-    <!-- AUDIO TAB -->
-    <div class="tab-content" id="tab-audio">
-        <div class="upload-box" id="audioUploadBox">
-            <input type="file" id="audioInput" accept="audio/*,video/*">
-            <div class="upload-content">
-                <div class="upload-icon">🎙️</div>
-                <p>Click to upload audio or video</p>
-                <span>Supports MP3, WAV, MP4, M4A</span>
+            <div class="workspace-viewport">
+                <!-- IMAGE TAB -->
+                <div class="tab-pane active" id="tab-image">
+                    <div class="cyber-dropzone" id="uploadBox">
+                        <input type="file" id="imageInput" accept="image/*">
+                        <div class="dropzone-content">
+                            <div class="dropzone-icon">📤</div>
+                            <h3>Drag & Drop Image Asset</h3>
+                            <p>or click to browse local directory</p>
+                            <span class="file-specs">JPEG, PNG, WEBP // MAX 20MB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="url-scan-module" id="imageUrlContainer">
+                        <div class="module-divider"><span>OR ANALYZE VIA ENDPOINT</span></div>
+                        <div class="cyber-input-group">
+                            <input type="text" id="imageUrlInput" placeholder="Paste direct image or webpage URL here...">
+                            <button class="cyber-btn primary" onclick="analyzeImageUrl()">
+                                <span>Inspect URL</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="media-preview-container" id="previewBox" style="display:none;">
+                        <div class="scanner-beam"></div>
+                        <img id="previewImage" src="" alt="Uploaded Image">
+                    </div>
+                    
+                    <button class="cyber-btn action-btn" id="analyzeBtn" onclick="analyzeImage()" style="display:none;">
+                        🔍 START DETAILED IMAGE SCAN
+                    </button>
+                    
+                    <div class="scan-loading" id="imageLoading" style="display:none;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Analyzing pixel patterns & noise variance...</p>
+                    </div>
+                    
+                    <div id="imageResult"></div>
+                </div>
+
+                <!-- VIDEO TAB -->
+                <div class="tab-pane" id="tab-video">
+                    <div class="cyber-dropzone" id="videoUploadBox">
+                        <input type="file" id="videoInput" accept="video/*">
+                        <div class="dropzone-content">
+                            <div class="dropzone-icon">🎬</div>
+                            <h3>Select Video File</h3>
+                            <p>or drag & drop here to initiate ingestion</p>
+                            <span class="file-specs">MP4, AVI, MOV // MAX 50MB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="url-scan-module" id="videoUrlContainer">
+                        <div class="module-divider"><span>OR ANALYZE VIA ENDPOINT</span></div>
+                        <div class="cyber-input-group">
+                            <input type="text" id="videoUrlInput" placeholder="Paste YouTube, Instagram, or direct video link...">
+                            <button class="cyber-btn primary" onclick="analyzeVideoUrl()">
+                                <span>Inspect URL</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="media-preview-container" id="videoPreviewBox" style="display:none;">
+                        <div class="scanner-beam"></div>
+                        <video id="videoPreview" controls></video>
+                    </div>
+                    
+                    <button class="cyber-btn action-btn" id="videoAnalyzeBtn" onclick="analyzeVideo()" style="display:none;">
+                        🔍 START SEQUENTIAL FRAME SCAN
+                    </button>
+                    
+                    <div class="scan-loading" id="videoLoading" style="display:none;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Splitting streams & scanning keyframes sequentially...</p>
+                    </div>
+                    
+                    <div id="videoResult"></div>
+                </div>
+
+                <!-- AUDIO TAB -->
+                <div class="tab-pane" id="tab-audio">
+                    <div class="cyber-dropzone" id="audioUploadBox">
+                        <input type="file" id="audioInput" accept="audio/*,video/*">
+                        <div class="dropzone-content">
+                            <div class="dropzone-icon">🎙️</div>
+                            <h3>Upload Audio Track</h3>
+                            <p>or drag & drop sound files directly</p>
+                            <span class="file-specs">MP3, WAV, M4A // MAX 30MB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="url-scan-module" id="audioUrlContainer">
+                        <div class="module-divider"><span>OR ANALYZE VIA ENDPOINT</span></div>
+                        <div class="cyber-input-group">
+                            <input type="text" id="audioUrlInput" placeholder="Paste audio media URL link...">
+                            <button class="cyber-btn primary" onclick="analyzeAudioUrl()">
+                                <span>Inspect URL</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="media-preview-container" id="audioPreviewBox" style="display:none; padding: 24px;">
+                        <div class="audio-wave-icon">🔊</div>
+                        <audio id="audioPreview" controls></audio>
+                    </div>
+                    
+                    <button class="cyber-btn action-btn" id="audioAnalyzeBtn" onclick="analyzeAudio()" style="display:none;">
+                        🔍 SCAN AUDIO SPECTRUM
+                    </button>
+                    
+                    <div class="scan-loading" id="audioLoading" style="display:none;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Analyzing spectral anomalies & voice harmonics...</p>
+                    </div>
+                    
+                    <div id="audioResult"></div>
+                </div>
+
+                <!-- TEXT TAB -->
+                <div class="tab-pane" id="tab-text">
+                    <div class="cyber-text-container">
+                        <textarea id="textInput" placeholder="Paste text here to evaluate stylistic fingerprints, vocabulary distribution, and perplexity (min 50 chars)..."></textarea>
+                        <div class="textarea-footer">
+                            <span id="charCount" class="badge">0 characters</span>
+                            <span class="limit-label">Minimum 50 characters</span>
+                        </div>
+                    </div>
+                    
+                    <button class="cyber-btn action-btn" onclick="analyzeText()" style="margin-top: 16px;">
+                        🔍 RUN SYNTACTIC TEXT INSPECTION
+                    </button>
+                    
+                    <div class="url-scan-module" id="textUrlContainer" style="margin-top: 24px;">
+                        <div class="module-divider"><span>OR EXTRACT FROM WEBPAGE URL</span></div>
+                        <div class="cyber-input-group">
+                            <input type="text" id="textUrlInput" placeholder="Paste article, blog, or news webpage URL...">
+                            <button class="cyber-btn primary" onclick="analyzeTextUrl()">
+                                <span>Scrape & Scan</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="scan-loading" id="textLoading" style="display:none;">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Evaluating vocabulary distribution & word perplexity...</p>
+                    </div>
+                    
+                    <div id="textResult"></div>
+                </div>
             </div>
-        </div>
-        <div class="url-input-container" id="audioUrlContainer">
-            <div class="url-divider"><span>OR</span></div>
-            <div class="url-input-wrapper">
-                <input type="text" id="audioUrlInput" placeholder="Paste audio URL here...">
-                <button class="url-btn" onclick="analyzeAudioUrl()">Analyze URL</button>
+        </section>
+
+        <!-- CARD 2: TELEMETRY & STATS (1 column) -->
+        <section class="bento-card telemetry-card">
+            <div class="card-header border-bottom">
+                <span class="card-subtitle">LIVE ANALYTICS</span>
+                <h3>System Telemetry</h3>
             </div>
-        </div>
-        <div id="audioPreviewBox" style="display:none; margin-top:16px; text-align:center;">
-            <audio id="audioPreview" controls style="width:100%; margin-top:8px;"></audio>
-        </div>
-        <button class="analyze-btn" id="audioAnalyzeBtn" onclick="analyzeAudio()" style="display:none;">
-            🔍 Analyze Audio
-        </button>
-        <div class="loading" id="audioLoading" style="display:none;">
-            <div class="spinner"></div>
-            <p>Transcribing and analyzing voice...</p>
-        </div>
-        <div id="audioResult"></div>
-    </div>
-
-    <!-- TEXT TAB -->
-    <div class="tab-content" id="tab-text">
-        <div class="text-input-box">
-            <textarea id="textInput" placeholder="Paste any text here to detect if it was written by AI (ChatGPT, Claude, Gemini, etc.)..."></textarea>
-            <div class="text-meta">
-                <span id="charCount">0 characters</span>
-                <span>Minimum 50 characters</span>
+            
+            <div class="stats-grid">
+                <div class="stat-bento-card">
+                    <span class="stat-label">TOTAL SCANS</span>
+                    <strong id="statTotalScans" class="stat-value">0</strong>
+                    <div class="stat-chart-bar">
+                        <div class="stat-bar-fill green" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <div class="stat-bento-card">
+                    <span class="stat-label">THREAT RATIO</span>
+                    <strong id="statThreatRatio" class="stat-value danger">0%</strong>
+                    <div class="stat-chart-bar">
+                        <div class="stat-bar-fill red" id="threatRatioBar" style="width: 0%;"></div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <button class="analyze-btn" onclick="analyzeText()">
-            🔍 Analyze Text
-        </button>
-        <div class="url-input-container" id="textUrlContainer">
-            <div class="url-divider"><span>OR EXTRACT FROM WEBPAGE</span></div>
-            <div class="url-input-wrapper">
-                <input type="text" id="textUrlInput" placeholder="Paste article/webpage URL here...">
-                <button class="url-btn" onclick="analyzeTextUrl()">Analyze URL</button>
+
+            <div class="dashboard-telemetry">
+                <div class="telemetry-row">
+                    <span>Server Response</span>
+                    <span class="telemetry-value text-green">OK // 2ms</span>
+                </div>
+                <div class="telemetry-row">
+                    <span>Database Status</span>
+                    <span class="telemetry-value">SQLite Online</span>
+                </div>
+                <div class="telemetry-row">
+                    <span>API Integrations</span>
+                    <span class="telemetry-value text-purple">Groq v3 Enabled</span>
+                </div>
             </div>
-        </div>
-        <div class="loading" id="textLoading" style="display:none;">
-            <div class="spinner"></div>
-            <p>Detecting AI writing patterns...</p>
-        </div>
-        <div id="textResult"></div>
-    </div>
+        </section>
 
-    <!-- HISTORY SECTION -->
-    <div class="history-section">
-        <div class="history-header">
-            <h2>🛡️ Scan History Log</h2>
-            <button class="clear-history-btn" onclick="clearHistory()">Clear All</button>
-        </div>
-        <div class="history-list" id="historyList">
-            <p class="no-history">No history records found.</p>
-        </div>
-    </div>
+        <!-- CARD 3: AUDIT HISTORY STREAM (1 column) -->
+        <section class="bento-card history-card-bento">
+            <div class="card-header border-bottom">
+                <div class="history-title-row-top">
+                    <div>
+                        <span class="card-subtitle">SYSTEM LOGS</span>
+                        <h3>Threat Activity Feed</h3>
+                    </div>
+                    <button class="clear-btn" onclick="clearHistory()">Clear Feed</button>
+                </div>
+            </div>
+            
+            <div class="feed-container" id="historyList">
+                <div class="no-history-msg">
+                    <span class="msg-icon">📂</span>
+                    <p>No scans recorded in history.</p>
+                </div>
+            </div>
+        </section>
 
-
-
+    </main>
 </div>
 
 <script src="/static/script.js"></script>
